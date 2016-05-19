@@ -15,16 +15,40 @@ namespace VectorEditor.Classes
 
         private double width, height;
 
+        public double Width
+        {
+            get { return width; }
+            set
+            {
+                width = value;
+                canvasBorder.Width = width;
+            }
+        }
+
+        public double Height
+        {
+            get { return height; }
+            set
+            {
+                height = value;
+                canvasBorder.Height = height;
+            }
+        }
+
         private Canvas canvas;
         public Canvas Canvas { get { return canvas; } }
 
-        public Image(Canvas canvas, double width, double height)
+        private Border canvasBorder;
+        public Border CanvasBorder { get { return canvasBorder; } }
+
+        public Image(Canvas canvas, Border canvasBorder, double width, double height)
         {
             Figures = new List<IFigure>();
             this.canvas = canvas;
+            this.canvasBorder = canvasBorder;
             canvas.Children.Clear();
-            canvas.Width = width;
-            canvas.Height = height;
+            canvasBorder.Width = width;
+            canvasBorder.Height = height;
             this.width = width;
             this.height = height;
         }
@@ -32,7 +56,9 @@ namespace VectorEditor.Classes
         {
             this.width = width;
             this.height = height;
-            canvas = new Canvas() { Width = width, Height = height };
+            canvasBorder = new Border() { Width = width, Height = height };
+            canvas = new Canvas();
+            canvasBorder.Child = canvas;
             Figures = new List<IFigure>();
         }
 
@@ -47,23 +73,23 @@ namespace VectorEditor.Classes
             canvas.Children[index1] = canvas.Children[index2];
             canvas.Children[index2] = tmpElem;
         }
-        public void LayoutUp(IFigure figure)
+        public void LayerUp(IFigure figure)
         {
             int k = Figures.IndexOf(figure);
             SwapFigures(k, k + 1);
         }
-        public void LayoutDown(IFigure figure)
+        public void LayerDown(IFigure figure)
         {
             int k = Figures.IndexOf(figure);
             SwapFigures(k, k - 1);
         }
-        public void LayoutTop(IFigure figure)
+        public void LayerTop(IFigure figure)
         {
             int k = Figures.IndexOf(figure);
             Figures.RemoveAt(k);
             Figures.Add(figure);
         }
-        public void LayoutBottom(IFigure figure)
+        public void LayerBottom(IFigure figure)
         {
             int k = Figures.IndexOf(figure);
             Figures.RemoveAt(k);

@@ -26,5 +26,6 @@ namespace VectorEditor.Classes.Figures
         void SelectedMouseUp(Point p);
 
         string ToSVG();
+        IFigure Copy();
     }
 }

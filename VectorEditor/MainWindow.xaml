@@ -1,10 +1,87 @@
 ﻿<Window x:Class="VectorEditor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Vector Editor" Height="350" Width="525">
+        Title="Vector Editor" Height="349.8" Width="594.6">
+
+    <Window.Resources>
+        <Style x:Key="ToolButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"/>
+                </Trigger>
+                <Trigger Property="Tag" Value="Active">
+                    <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ColorButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Path x:Key="pointerImg" Height="18" Stretch="Uniform" Width="18" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"
+              Data="F 1 M 289.834,194.854 L 57.617,0 57.617,303.138 123.48,224.061 181.017,347.451 244.459,317.867 186.921,194.478 Z"/>
+        <Rectangle x:Key="rectangleImg" Height="15" Width="20" StrokeThickness="3" Stroke="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"/>
+        <Ellipse x:Key="ellipseImg" Height="15" Width="20" StrokeThickness="3" Stroke="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"/>
+
+        <Canvas x:Key="layerUpImg" Height="30" Width="30">
+            <Rectangle Canvas.Left="4" Canvas.Top="6" Height="2" Width="20" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"/>
+            <Rectangle Canvas.Left="4" Canvas.Top="12" Height="2" Width="20" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"/>
+            <Rectangle Canvas.Left="4" Canvas.Top="18" Height="2" Width="12" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"/>
+            <Path Data="M18 20 L21 15 L24 20" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"></Path>
+        </Canvas>
+
+        <Canvas x:Key="layerDownImg" Height="30" Width="30">
+            <Rectangle Canvas.Left="4" Canvas.Top="6" Height="2" Width="12" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"/>
+            <Rectangle Canvas.Left="4" Canvas.Top="12" Height="2" Width="20" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"/>
+            <Rectangle Canvas.Left="4" Canvas.Top="18" Height="2" Width="20" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"/>
+            <Path Data="M18 6 L21 11 L24 6" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"></Path>
+        </Canvas>
+
+        <Canvas x:Key="layerTopImg" Height="30" Width="30">
+            <Rectangle Canvas.Left="4" Canvas.Top="6" Height="2" Width="20" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"/>
+            <Rectangle Canvas.Left="4" Canvas.Top="18" Height="2" Width="20" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"/>
+            <Path Data="M11 15 L14 10 L17 15" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"></Path>
+        </Canvas>
+
+        <Canvas x:Key="layerBottomImg" Height="30" Width="30">
+            <Rectangle Canvas.Left="4" Canvas.Top="6" Height="2" Width="20" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"/>
+            <Rectangle Canvas.Left="4" Canvas.Top="18" Height="2" Width="20" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"/>
+            <Path Data="M11 10 L14 15 L17 10" Fill="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}"></Path>
+        </Canvas>
+
+    </Window.Resources>
+
     <Grid>
         <StackPanel>
-            <Menu HorizontalAlignment="Stretch" Height="20" VerticalAlignment="Top">
+            <Menu HorizontalAlignment="Stretch" Height="20" VerticalAlignment="Top" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
                 <MenuItem Header="_File">
                     <MenuItem Header="_New"></MenuItem>
                     <MenuItem Header="_Open"></MenuItem>
@@ -27,23 +104,139 @@
                     <MenuItem Header="_Delete"></MenuItem>
                 </MenuItem>
             </Menu>
-            <DockPanel Height="24" LastChildFill="False" Background="#FFF0F0F0">
-                <Button x:Name="SelectModeBtn" Margin="3" Background="{x:Null}" BorderBrush="{x:Null}" Click="SelectModeBtn_Click" >Pointer</Button>
-                <Button x:Name="AddRectBtn" Margin="3" Background="{x:Null}" BorderBrush="{x:Null}" Click="AddRectBtn_Click">Rectangle</Button>
-            </DockPanel>
-        </StackPanel>
-        <Grid Margin="0 56 0 0" Background="White">
-            <Border Width="{Binding Width, ElementName=canvas}" 
-                    Height="{Binding Height, ElementName=canvas}"  
-                    BorderThickness="1" BorderBrush="Black">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
-                </Border.Effect>
-                <Canvas x:Name="canvas" Width="400" Height="200" Background="White" RenderTransformOrigin="0.5,0.5" 
-                        MouseDown="canvas_MouseDown" MouseMove="canvas_MouseMove" MouseUp="canvas_MouseUp" UseLayoutRounding="False" >
-                    <Line X1="10" Y1="100" X2="100" Y2="10" Stroke="Black"></Line>
-                </Canvas>
+            <Border Height="30" BorderThickness="0 0 0 1" VerticalAlignment="Top"
+                    Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
+                    BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">
+                <DockPanel Height="30" LastChildFill="False">
+                    <DockPanel x:Name="Toolbar" LastChildFill="False">
+                        <Button x:Name="SelectModeBtn" Click="SelectModeBtn_Click" ToolTip="Pointer" Content="{StaticResource pointerImg}"
+                            Width="30" Height="30" Style="{StaticResource ToolButtonStyle}"></Button>
+
+                        <Button x:Name="AddRectBtn" Click="AddRectBtn_Click" ToolTip="Rectangle" Content="{StaticResource rectangleImg}"
+                            Width="30" Height="30" Style="{StaticResource ToolButtonStyle}"></Button>
+                        <Button x:Name="AddEllipseBtn" Click="AddEllipseBtn_Click" ToolTip="Ellipse" Content="{StaticResource ellipseImg}"
+                            Width="30" Height="30" Style="{StaticResource ToolButtonStyle}"></Button>
+                    </DockPanel>
+
+                    <Line Margin="7 5" Stroke="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" StrokeThickness="1" X1="0" Y1="0" X2="0" Y2="20"></Line>
+
+                    <Grid Width="30" Height="30">
+                        <Button x:Name="strokeBtn" Width="15" Height="15" Margin="0 0 -8 -8" Style="{StaticResource ColorButtonStyle}" 
+                                    ToolTip="Stroke Color" Click="strokeBtn_Click"/>
+                        <Button x:Name="fillBtn" Width="15" Height="15" Margin="-10 -10 0 0" Style="{StaticResource ColorButtonStyle}"
+                                    ToolTip="Fill Color" Click="fillBtn_Click"/>
+                    </Grid>
+                    <DockPanel Margin="10 0 0 0" LastChildFill="False">
+                        <DockPanel Margin="3">
+                            <Label Padding="0" VerticalAlignment="Center">Thickness</Label>
+                            <TextBox x:Name="thicknessBox" Width="40" Margin="10 3 5 3" TextChanged="thicknessBox_TextChanged"></TextBox>
+                        </DockPanel>
+                    </DockPanel>
+                </DockPanel>
             </Border>
+
+        </StackPanel>
+        <Grid Margin="0 50 0 0" VerticalAlignment="Stretch" Background="White">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto" MinWidth="200"/>
+            </Grid.ColumnDefinitions>
+           
+            <Grid Grid.Column="0">
+                <Grid.Background>
+                    <VisualBrush TileMode="Tile"
+                                            Viewport="0,0,25,25" ViewportUnits="Absolute" 
+                                            Viewbox="0,0,50,50" ViewboxUnits="Absolute">
+                        <VisualBrush.Visual>
+                            <Canvas>
+                                <Rectangle Canvas.Top="0" Canvas.Left="0" Fill="#FFF0F0F0" Height="25" Width="25"/>
+                                <Rectangle Canvas.Top="25" Canvas.Left="25" Fill="#FFF0F0F0" Height="25" Width="25"/>
+                                <Rectangle Canvas.Top="25" Canvas.Left="0" Fill="#FFFAFAFA" Height="25" Width="25"/>
+                                <Rectangle Canvas.Top="0" Canvas.Left="25" Fill="#FFFAFAFA" Height="25" Width="25"/>
+
+                                <!-- <Line Stroke="#FF707070" X1="0" Y1="0" X2="25" Y2="0" StrokeDashArray="2 4" StrokeThickness="1.5"></Line>
+                                <Line Stroke="#FF707070" X1="0" Y1="0" X2="0" Y2="25" StrokeDashArray="2 4" StrokeThickness="1.5"></Line> -->
+                            </Canvas>
+                        </VisualBrush.Visual>
+                    </VisualBrush>
+                </Grid.Background>
+                <Border x:Name="canvasBorder" BorderThickness="1" Width="200" Height="200"
+                        BorderBrush="{DynamicResource {x:Static SystemColors.DesktopBrushKey}}">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="1" ShadowDepth="2" Color="{DynamicResource {x:Static SystemColors.DesktopColorKey}}"/>
+                    </Border.Effect>
+                    <Canvas x:Name="canvas" Background="White" RenderTransformOrigin="0.5,0.5" 
+                            MouseDown="canvas_MouseDown" MouseMove="canvas_MouseMove" MouseUp="canvas_MouseUp" UseLayoutRounding="False" 
+                            ClipToBounds="True">
+
+                    </Canvas>
+                </Border>
+            </Grid>
+            <Border Grid.Column="1" BorderThickness="1 0 0 0"
+                    Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" 
+                    BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">
+                <Grid>
+                    <StackPanel x:Name="ImageProperties" Visibility="Visible">
+                        <Label Padding="10 3" BorderThickness="0 0 0 1" FontFamily="Segoe UI Semibold"
+                               BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"
+                               Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}" 
+                               Foreground="{DynamicResource {x:Static SystemColors.MenuTextBrushKey}}">
+                            Image Properties
+                        </Label>
+
+                        <DockPanel Margin="5">
+                            <Label HorizontalAlignment="Left" Width="75" >Width</Label>
+                            <TextBox x:Name="widthTextBox" HorizontalAlignment="Stretch" Margin="10 3 5 3" KeyDown="widthTextBox_KeyDown"></TextBox>
+                        </DockPanel>
+
+                        <DockPanel Margin="5">
+                            <Label HorizontalAlignment="Left" Width="75">Height</Label>
+                            <TextBox x:Name="heightTextBox" HorizontalAlignment="Stretch" Margin="10 3 5 3" KeyDown="heightTextBox_KeyDown"></TextBox>
+                        </DockPanel>
+                    </StackPanel>
+                    <StackPanel x:Name="SelectedFigureProperties" Visibility="Collapsed" 
+                                Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
+                        <Label Padding="10 3" BorderThickness="0 0 0 1" FontFamily="Segoe UI Semibold"
+                               BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"
+                               Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}" 
+                               Foreground="{DynamicResource {x:Static SystemColors.MenuTextBrushKey}}">
+                            Figure Properties
+                        </Label>
+                        <DockPanel Margin="5">
+                            <Label x:Name="selectedName" HorizontalAlignment="Left" Width="75">Name</Label>
+                            <TextBox x:Name="selectedFigureName" HorizontalAlignment="Stretch" Margin="10 3 5 3"></TextBox>
+                        </DockPanel>
+                    
+                        <Separator Background="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
+                    
+                        <DockPanel Margin="5">
+                            <Label HorizontalAlignment="Left" Width="75">Fill</Label>
+                            <Button x:Name="selectedFigureFill" HorizontalAlignment="Stretch" Margin="10 3 5 3" Click="selectedFigureFill_Click"></Button>
+                        </DockPanel>
+                        <DockPanel Margin="5">
+                            <Label HorizontalAlignment="Left" Width="75">Stroke</Label>
+                            <Button x:Name="selectedFigureStroke" HorizontalAlignment="Stretch" Margin="10 3 5 3" Click="selectedFigureStroke_Click"></Button>
+                        </DockPanel>
+
+                        <DockPanel Margin="5">
+                            <Label HorizontalAlignment="Left" Width="75">Thickness</Label>
+                            <TextBox x:Name="selectedFigureThickness" HorizontalAlignment="Stretch" Margin="10 3 5 3" KeyDown="selectedFigureThickness_KeyDown"></TextBox>
+                        </DockPanel>
+                    
+                        <Separator Background="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
+
+                        <DockPanel HorizontalAlignment="Center">
+                            <Button HorizontalAlignment="Left" Margin="3" Height="30" Width="30" Content="{StaticResource layerUpImg}"></Button>
+                            <Button HorizontalAlignment="Left" Margin="3" Height="30" Width="30" Content="{StaticResource layerDownImg}"></Button>
+                            <Button HorizontalAlignment="Left" Margin="3" Height="30" Width="30" Content="{StaticResource layerTopImg}"></Button>
+                            <Button HorizontalAlignment="Left" Margin="3" Height="30" Width="30" Content="{StaticResource layerBottomImg}"></Button>
+                        </DockPanel>
+
+                    </StackPanel>
+                    
+                </Grid>
+            </Border>
+            <GridSplitter Grid.Column="0" Width="3" HorizontalAlignment="Right" Background="White" />
         </Grid>
     </Grid>
 

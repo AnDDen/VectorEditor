@@ -35,7 +35,84 @@ namespace VectorEditor
         private Color currentStrokeColor;
         private double currentStrokeThickness;
 
-        private IFigure selectedFigure = null; 
+        public Color CurrentFillColor
+        {
+            get { return currentFillColor; }
+            set
+            {
+                currentFillColor = value;
+                if (currentFillColor == Colors.Transparent)
+                    fillBtn.Background = Brushes.White;
+                else
+                    fillBtn.Background = new SolidColorBrush(currentFillColor);
+            }
+        }
+        public Color CurrentStrokeColor
+        {
+            get { return currentStrokeColor; }
+            set
+            {
+                currentStrokeColor = value;
+                if (currentStrokeColor == Colors.Transparent)
+                    strokeBtn.Background = Brushes.White;
+                else
+                    strokeBtn.Background = new SolidColorBrush(currentStrokeColor);
+            }
+        }
+        public double CurrentStrokeThickness
+        {
+            get { return currentStrokeThickness; }
+            set
+            {
+                currentStrokeThickness = value;
+                thicknessBox.Text = currentStrokeThickness.ToString();
+            }
+        }
+
+        public double ImageHeight
+        {
+            get { return image.Height; }
+            set
+            {
+                image.Height = value;
+                heightTextBox.Text = value.ToString();
+            }
+        }
+        public double ImageWidth
+        {
+            get { return image.Width; }
+            set
+            {
+                image.Width = value;
+                widthTextBox.Text = value.ToString();
+            }
+        }
+
+        public IFigure SelectedFigure
+        {
+            get
+            {
+                return selectedFigure;
+            }
+
+            set
+            {
+                selectedFigure = value;
+                if (selectedFigure != null)
+                {
+                    SelectedFigureProperties.Visibility = Visibility.Visible;
+                    UpdateSelectedFigureInfo();
+                }
+                else
+                {
+                    SelectedFigureProperties.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private IFigure selectedFigure = null;
+
+        private System.Windows.Forms.ColorDialog colorDlg;
 
         public MainWindow()
         {
@@ -46,23 +123,61 @@ namespace VectorEditor
         public void Init()
         {
             currentMode = Mode.SELECT;
-            image = new Classes.Image(canvas, 400, 250);
+            SelectActiveOnToolbar(SelectModeBtn);
+            image = new Classes.Image(canvas, canvasBorder, 400, 250);
+            ImageHeight = 250;
+            ImageWidth = 400;
+
+            colorDlg = new System.Windows.Forms.ColorDialog();
+
 
             // temp ( TODO : save settings in file and load them here )
-            currentFillColor = Colors.White;
-            currentStrokeColor = Colors.Black;
-            currentStrokeThickness = 3;
+            CurrentFillColor = Colors.Transparent;
+            CurrentStrokeColor = Colors.Black;
+            CurrentStrokeThickness = 3;
+        }
+
+        private void UpdateSelectedFigureInfo()
+        {
+            selectedFigureFill.Background = new SolidColorBrush(selectedFigure.FillColor);
+            selectedFigureStroke.Background = new SolidColorBrush(selectedFigure.StrokeColor);
+            selectedFigureThickness.Text = selectedFigure.StrokeThickness.ToString();
+        }
+
+        private void SelectActiveOnToolbar(UIElement activeButton)
+        {
+            foreach (UIElement element in Toolbar.Children)
+            {
+                if (element is Button)
+                {
+                    if (element != activeButton)
+                    {
+                        (element as Button).Tag = "NotActive";
+                    }
+                    else
+                        (element as Button).Tag = "Active";
+                }
+            }
         }
 
         private void SelectModeBtn_Click(object sender, RoutedEventArgs e)
         {
             currentMode = Mode.SELECT;
+            SelectActiveOnToolbar(sender as Button);
         }
 
         private void AddRectBtn_Click(object sender, RoutedEventArgs e)
         {
             currentMode = Mode.ADD_FIGURE;
             currentFigureType = typeof(Classes.Figures.Rectangle);
+            SelectActiveOnToolbar(sender as Button);
+        }
+
+        private void AddEllipseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            currentMode = Mode.ADD_FIGURE;
+            currentFigureType = typeof(Classes.Figures.Rectangle);
+            SelectActiveOnToolbar(sender as Button);
         }
 
         private void canvas_MouseDown(object sender, MouseButtonEventArgs e)
@@ -86,23 +201,23 @@ namespace VectorEditor
 
                     if (figure != null)
                     {                   
-                        if (figure != selectedFigure)
+                        if (figure != SelectedFigure)
                         {
-                            if (selectedFigure != null)
-                                selectedFigure.Selected = false;
-                            selectedFigure = figure;
-                            selectedFigure.Selected = true;
+                            if (SelectedFigure != null)
+                                SelectedFigure.Selected = false;
+                            SelectedFigure = figure;
+                            SelectedFigure.Selected = true;
                         }
-                        selectedFigure.SelectedMouseDown(e.GetPosition(canvas));
+                        SelectedFigure.SelectedMouseDown(e.GetPosition(canvas));
                         isSelectedMouseDown = true;
                         canvas.CaptureMouse();
                     }
                     else
                     {
-                        if (selectedFigure != null)
+                        if (SelectedFigure != null)
                         {
-                            selectedFigure.Selected = false;
-                            selectedFigure = null;
+                            SelectedFigure.Selected = false;
+                            SelectedFigure = null;
                         }
                     }
                     break;
@@ -126,9 +241,9 @@ namespace VectorEditor
                 case Mode.SELECT:
                     if (isCanvasMouseDown)
                     {
-                        if (selectedFigure != null && isSelectedMouseDown)
+                        if (SelectedFigure != null && isSelectedMouseDown)
                         {
-                            selectedFigure.SelectedMouseMove(e.GetPosition(canvas));
+                            SelectedFigure.SelectedMouseMove(e.GetPosition(canvas));
                         }
                     }
                     break;
@@ -148,9 +263,9 @@ namespace VectorEditor
             switch (currentMode)
             {
                 case Mode.SELECT:
-                    if (selectedFigure != null && isSelectedMouseDown)
+                    if (SelectedFigure != null && isSelectedMouseDown)
                     {
-                        selectedFigure.SelectedMouseUp(e.GetPosition(canvas));
+                        SelectedFigure.SelectedMouseUp(e.GetPosition(canvas));
                     }
                     break;
 
@@ -162,6 +277,107 @@ namespace VectorEditor
 
             canvas.ReleaseMouseCapture();
             isCanvasMouseDown = false;
+        }
+
+        private void fillBtn_Click(object sender, RoutedEventArgs e)
+        {
+            colorDlg.Color = System.Drawing.Color.FromArgb(CurrentFillColor.A, CurrentFillColor.R, CurrentFillColor.G, CurrentFillColor.B);
+            if (colorDlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                CurrentFillColor = Color.FromArgb(colorDlg.Color.A, colorDlg.Color.R, colorDlg.Color.G, colorDlg.Color.B);
+            }
+        }
+
+        private void strokeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            colorDlg.Color = System.Drawing.Color.FromArgb(CurrentStrokeColor.A, CurrentStrokeColor.R, CurrentStrokeColor.G, CurrentStrokeColor.B);
+            if (colorDlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                CurrentStrokeColor = Color.FromArgb(colorDlg.Color.A, colorDlg.Color.R, colorDlg.Color.G, colorDlg.Color.B);
+            }
+        }
+
+        private void thicknessBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            double t = 0;
+            if (double.TryParse(thicknessBox.Text, out t) && t >= 0)
+            {
+                CurrentStrokeThickness = t;
+            }
+            else
+            {
+                MessageBox.Show(this, "Thickness must be positive number");
+                CurrentStrokeThickness = 1;
+            }            
+        }
+
+        private void widthTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                double w;
+                if (double.TryParse(widthTextBox.Text, out w) && w > 0)
+                {
+                    ImageWidth = w;
+                }
+                else
+                {
+                    MessageBox.Show("Width must be positive number");
+                    widthTextBox.Text = image.Width.ToString();
+                }
+            }
+        }
+
+        private void heightTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                double h;
+                if (double.TryParse(heightTextBox.Text, out h) && h > 0)
+                {
+                    ImageHeight = h;
+                }
+                else
+                {
+                    MessageBox.Show("Width must be positive number");
+                    heightTextBox.Text = image.Height.ToString();
+                }
+            }
+        }
+
+        private void selectedFigureFill_Click(object sender, RoutedEventArgs e)
+        {
+            colorDlg.Color = System.Drawing.Color.FromArgb(selectedFigure.FillColor.A, selectedFigure.FillColor.R, selectedFigure.FillColor.G, selectedFigure.FillColor.B);
+            if (colorDlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                selectedFigure.FillColor = Color.FromArgb(colorDlg.Color.A, colorDlg.Color.R, colorDlg.Color.G, colorDlg.Color.B);
+                UpdateSelectedFigureInfo();
+            }
+        }
+
+        private void selectedFigureStroke_Click(object sender, RoutedEventArgs e)
+        {
+            colorDlg.Color = System.Drawing.Color.FromArgb(selectedFigure.StrokeColor.A, selectedFigure.StrokeColor.R, selectedFigure.StrokeColor.G, selectedFigure.StrokeColor.B);
+            if (colorDlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                selectedFigure.StrokeColor = Color.FromArgb(colorDlg.Color.A, colorDlg.Color.R, colorDlg.Color.G, colorDlg.Color.B);
+                UpdateSelectedFigureInfo();
+            }
+        }
+
+        private void selectedFigureThickness_KeyDown(object sender, KeyEventArgs e)
+        {
+            double t = 0;
+            if (double.TryParse(selectedFigureThickness.Text, out t) && t >= 0)
+            {
+                selectedFigure.StrokeThickness = t;
+                UpdateSelectedFigureInfo();
+            }
+            else
+            {
+                MessageBox.Show(this, "Thickness must be positive number");
+                selectedFigureThickness.Text = selectedFigure.StrokeThickness.ToString();
+            }
         }
     }
 }

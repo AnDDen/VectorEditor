@@ -220,7 +220,6 @@ namespace VectorEditor.Classes.Figures
 
             InitPoints();
 
-
             X = x;
             Y = y;
             Width = 0;
@@ -331,6 +330,20 @@ namespace VectorEditor.Classes.Figures
                 .Append(string.Format("stroke: rgb({0}, {1}, {2})'", strokeColor.R, strokeColor.G, strokeColor.B))
                 .Append(" />");
             return stringBuilder.ToString();            
+        }
+
+        public IFigure Copy()
+        {
+            return new Rectangle()
+            {
+                Width = width,
+                Height = height,
+                FillColor = fillColor,
+                StrokeColor = strokeColor,
+                StrokeThickness = strokeThickness,
+                X = x,
+                Y = y
+            };
         }
     }
 }
