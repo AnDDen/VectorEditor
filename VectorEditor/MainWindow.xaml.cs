@@ -483,7 +483,7 @@ namespace VectorEditor
         SaveFileDialog fileDlg = new SaveFileDialog()
         {
             AddExtension = true,
-            Filter = "Scalable Vector Graphics Files(*.svg) | *.svg | All Files(*.*) | *.*"
+            Filter = "Scalable Vector Graphics Files (*.svg)|*.svg|All Files (*.*)|*.*"
         };
 
         private void MenuItem_Click_2(object sender, RoutedEventArgs e)
