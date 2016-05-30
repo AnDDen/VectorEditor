@@ -62,38 +62,60 @@ namespace VectorEditor.Classes
             Figures = new List<IFigure>();
         }
 
+        public Image Copy()
+        {
+            Image res = new Image(width, height);
+            foreach (IFigure f in Figures)
+            {
+                res.AddFigure(f.Copy());
+            }
+            return res;
+        }
+
         /* Перемещение фигуры по уровням */
         public void SwapFigures(int index1, int index2)
         {
-            IFigure tmp = Figures[index1];
-            Figures[index1] = Figures[index2];
-            Figures[index2] = tmp;
+            IFigure figure1 = Figures[index1];
+            IFigure figure2 = Figures[index2];
 
-            UIElement tmpElem = canvas.Children[index1];
-            canvas.Children[index1] = canvas.Children[index2];
-            canvas.Children[index2] = tmpElem;
+            Figures.RemoveAt(index1);
+            Figures.Insert(index1, figure2);
+            Figures.RemoveAt(index2);
+            Figures.Insert(index2, figure1);
+            canvas.Children.RemoveAt(index2);
+            canvas.Children.Insert(index2, new UIElement());
+            canvas.Children.RemoveAt(index1);
+            canvas.Children.Insert(index1, figure2.Element);
+            canvas.Children.RemoveAt(index2);
+            canvas.Children.Insert(index2, figure1.Element);
         }
         public void LayerUp(IFigure figure)
         {
             int k = Figures.IndexOf(figure);
-            SwapFigures(k, k + 1);
+            if (k + 1 < Figures.Count)
+                SwapFigures(k, k + 1);
         }
         public void LayerDown(IFigure figure)
         {
             int k = Figures.IndexOf(figure);
-            SwapFigures(k, k - 1);
+            if (k - 1 >= 0)
+                SwapFigures(k, k - 1);
         }
         public void LayerTop(IFigure figure)
         {
             int k = Figures.IndexOf(figure);
             Figures.RemoveAt(k);
+            Canvas.Children.RemoveAt(k);
             Figures.Add(figure);
+            Canvas.Children.Add(figure.Element);
         }
         public void LayerBottom(IFigure figure)
         {
             int k = Figures.IndexOf(figure);
             Figures.RemoveAt(k);
+            Canvas.Children.RemoveAt(k);
             Figures.Insert(0, figure);
+            Canvas.Children.Insert(0, figure.Element);
         }
 
         /* Добавление и удаление фигур */

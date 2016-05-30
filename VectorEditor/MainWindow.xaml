@@ -83,7 +83,7 @@
         <StackPanel>
             <Menu HorizontalAlignment="Stretch" Height="20" VerticalAlignment="Top" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
                 <MenuItem Header="_File">
-                    <MenuItem Header="_New"></MenuItem>
+                    <MenuItem x:Name="newBtn" Header="_New" Click="newBtn_Click"></MenuItem>
                     <MenuItem Header="_Open"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Header="_Save"></MenuItem>
@@ -95,7 +95,8 @@
                     <MenuItem Header="_Exit"></MenuItem>
                 </MenuItem>
                 <MenuItem Header="_Edit">
-                    <MenuItem Header="_Undo"></MenuItem>
+                    <MenuItem x:Name="undoBtn" Header="_Undo" Click="MenuItem_Click"></MenuItem>
+                    <MenuItem x:Name="redoBtn" Header="_Redo" Click="MenuItem_Click_1"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Header="_Cut"></MenuItem>
                     <MenuItem Header="_Copy"></MenuItem>
@@ -226,10 +227,10 @@
                         <Separator Background="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
 
                         <DockPanel HorizontalAlignment="Center">
-                            <Button HorizontalAlignment="Left" Margin="3" Height="30" Width="30" Content="{StaticResource layerUpImg}"></Button>
-                            <Button HorizontalAlignment="Left" Margin="3" Height="30" Width="30" Content="{StaticResource layerDownImg}"></Button>
-                            <Button HorizontalAlignment="Left" Margin="3" Height="30" Width="30" Content="{StaticResource layerTopImg}"></Button>
-                            <Button HorizontalAlignment="Left" Margin="3" Height="30" Width="30" Content="{StaticResource layerBottomImg}"></Button>
+                            <Button x:Name="layerUpBtn" HorizontalAlignment="Left" Margin="3" Height="30" Width="30" Content="{StaticResource layerUpImg}" Click="layerUpBtn_Click"></Button>
+                            <Button x:Name="layerDownBtn" HorizontalAlignment="Left" Margin="3" Height="30" Width="30" Content="{StaticResource layerDownImg}" Click="layerDownBtn_Click"></Button>
+                            <Button x:Name="layerTopBtn" HorizontalAlignment="Left" Margin="3" Height="30" Width="30" Content="{StaticResource layerTopImg}" Click="layerTopBtn_Click"></Button>
+                            <Button x:Name="layerBottomBtn" HorizontalAlignment="Left" Margin="3" Height="30" Width="30" Content="{StaticResource layerBottomImg}" Click="layerBottomBtn_Click"></Button>
                         </DockPanel>
 
                     </StackPanel>

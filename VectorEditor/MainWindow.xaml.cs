@@ -69,6 +69,8 @@ namespace VectorEditor
             }
         }
 
+        public HistoryService imageHistory;
+
         public double ImageHeight
         {
             get { return image.Height; }
@@ -124,17 +126,37 @@ namespace VectorEditor
         {
             currentMode = Mode.SELECT;
             SelectActiveOnToolbar(SelectModeBtn);
-            image = new Classes.Image(canvas, canvasBorder, 400, 250);
-            ImageHeight = 250;
-            ImageWidth = 400;
+
+            CloseImage();
+            NewImage(600, 400);
 
             colorDlg = new System.Windows.Forms.ColorDialog();
-
 
             // temp ( TODO : save settings in file and load them here )
             CurrentFillColor = Colors.Transparent;
             CurrentStrokeColor = Colors.Black;
             CurrentStrokeThickness = 3;
+        }
+
+        private void NewImage(double width, double height)
+        {
+            ImageProperties.Visibility = Visibility.Visible;
+            canvasBorder.Visibility = Visibility.Visible;
+            currentMode = Mode.SELECT;
+            SelectActiveOnToolbar(SelectModeBtn);
+            image = new Classes.Image(canvas, canvasBorder, width, height);
+            ImageHeight = height;
+            ImageWidth = width;
+            imageHistory = new HistoryService();
+            imageHistory.AddState(image);
+            UpdateUndoRedoBtns();
+        }
+
+        private void CloseImage()
+        {
+            ImageProperties.Visibility = Visibility.Collapsed;
+            canvasBorder.Visibility = Visibility.Collapsed;
+            image = null;
         }
 
         private void UpdateSelectedFigureInfo()
@@ -266,12 +288,16 @@ namespace VectorEditor
                     if (SelectedFigure != null && isSelectedMouseDown)
                     {
                         SelectedFigure.SelectedMouseUp(e.GetPosition(canvas));
+                        SaveImageState();
                     }
                     break;
 
                 case Mode.ADD_FIGURE:
                     if (addFigure != null)
+                    {
                         addFigure.AddMouseUp(e.GetPosition(canvas));
+                        SaveImageState();
+                    }
                     break;
             }
 
@@ -377,6 +403,79 @@ namespace VectorEditor
             {
                 MessageBox.Show(this, "Thickness must be positive number");
                 selectedFigureThickness.Text = selectedFigure.StrokeThickness.ToString();
+            }
+        }
+
+        private void newBtn_Click(object sender, RoutedEventArgs e)
+        {
+            NewImageWindow newImgWnd = new NewImageWindow();
+            newImgWnd.ShowDialog();
+            bool? res = newImgWnd.DialogResult;
+            if (res.HasValue && res.Value)
+            {
+                CloseImage();
+                NewImage(newImgWnd.ImageWidth, newImgWnd.ImageHeight);
+            }
+        }
+
+        private void layerUpBtn_Click(object sender, RoutedEventArgs e)
+        {
+            image.LayerUp(selectedFigure);
+        }
+
+        private void layerDownBtn_Click(object sender, RoutedEventArgs e)
+        {
+            image.LayerDown(selectedFigure);
+        }
+
+        private void layerTopBtn_Click(object sender, RoutedEventArgs e)
+        {
+            image.LayerTop(selectedFigure);
+        }
+
+        private void layerBottomBtn_Click(object sender, RoutedEventArgs e)
+        {
+            image.LayerBottom(selectedFigure);
+        }
+
+        private void SaveImageState()
+        {
+            imageHistory.AddState(image.Copy());
+            UpdateUndoRedoBtns();
+        }
+
+        private void LoadImageState(Classes.Image img)
+        {
+            image.Width = img.Width;
+            image.Height = img.Height;
+            image.Figures.Clear();
+            image.Canvas.Children.Clear();
+            foreach (IFigure figure in img.Figures)
+            {
+                image.AddFigure(figure.Copy());
+            }
+            UpdateUndoRedoBtns();
+        }
+
+        private void UpdateUndoRedoBtns()
+        {
+            undoBtn.IsEnabled = imageHistory.CanUndo();
+            redoBtn.IsEnabled = imageHistory.CanRedo();
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (imageHistory.CanUndo())
+            {
+                LoadImageState(imageHistory.Undo());
+            }            
+        }
+
+        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        {
+            if (imageHistory.CanRedo())
+            {
+                LoadImageState(imageHistory.Redo());
             }
         }
     }
