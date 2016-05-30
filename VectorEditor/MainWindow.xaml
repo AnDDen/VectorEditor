@@ -79,30 +79,42 @@
 
     </Window.Resources>
 
+    <Window.CommandBindings>
+        <CommandBinding Command="New" Executed="NewCommandBinding" ></CommandBinding>
+        <CommandBinding Command="Open" Executed="OpenCommandBinding" ></CommandBinding>
+        <CommandBinding Command="SaveAs" Executed="SaveCommandBinding"></CommandBinding>
+        <CommandBinding Command="Close" Executed="CloseCommandBinding" ></CommandBinding>
+        <CommandBinding Command="Undo" Executed="UndoCommandBinding" ></CommandBinding>
+        <CommandBinding Command="Redo" Executed="RedoCommandBinding" ></CommandBinding>
+        <CommandBinding Command="Delete" Executed="DeleteCommandBinding" ></CommandBinding>
+    </Window.CommandBindings>
+
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Control" Command="New"></KeyBinding>
+        <KeyBinding Key="O" Modifiers="Control" Command="Open"></KeyBinding>
+        <KeyBinding Key="S" Modifiers="Control" Command="SaveAs"></KeyBinding>
+        <KeyBinding Key="Z" Modifiers="Control" Command="Undo"></KeyBinding>
+        <KeyBinding Key="Y" Modifiers="Control" Command="Redo"></KeyBinding>
+        <KeyBinding Key="Delete" Command="Delete"></KeyBinding>
+    </Window.InputBindings>
+
     <Grid>
         <StackPanel>
             <Menu HorizontalAlignment="Stretch" Height="20" VerticalAlignment="Top" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
                 <MenuItem Header="_File">
-                    <MenuItem x:Name="newBtn" Header="_New" Click="newBtn_Click"></MenuItem>
-                    <MenuItem Header="_Open"></MenuItem>
+                    <MenuItem x:Name="newBtn" Header="_New" Command="New" InputGestureText="Ctrl+N"></MenuItem>
+                    <MenuItem Header="_Open" Command="Open" InputGestureText="Ctrl+O"></MenuItem>
                     <Separator></Separator>
-                    <MenuItem Header="_Save"></MenuItem>
-                    <MenuItem Header="_Save As..."></MenuItem>
+                    <MenuItem Header="_Save As..." Command="SaveAs" InputGestureText="Ctrl+S"></MenuItem>
+                    <MenuItem Header="_Export to SVG" Click="MenuItem_Click"></MenuItem>
                     <Separator></Separator>
-                    <MenuItem Header="_Import from SVG"></MenuItem>
-                    <MenuItem Header="_Export to SVG" Click="MenuItem_Click_2"></MenuItem>
-                    <Separator></Separator>
-                    <MenuItem Header="_Exit"></MenuItem>
+                    <MenuItem Header="_Exit" Command="Close" InputGestureText="Alt+F4"></MenuItem>
                 </MenuItem>
                 <MenuItem Header="_Edit">
-                    <MenuItem x:Name="undoBtn" Header="_Undo" Click="MenuItem_Click"></MenuItem>
-                    <MenuItem x:Name="redoBtn" Header="_Redo" Click="MenuItem_Click_1"></MenuItem>
+                    <MenuItem x:Name="undoBtn" Header="_Undo" Command="Undo" InputGestureText="Ctrl+Z" IsEnabled="False"></MenuItem>
+                    <MenuItem x:Name="redoBtn" Header="_Redo" Command="Redo" InputGestureText="Ctrl+Y" IsEnabled="False"></MenuItem>
                     <Separator></Separator>
-                    <MenuItem Header="_Cut"></MenuItem>
-                    <MenuItem Header="_Copy"></MenuItem>
-                    <MenuItem Header="_Paste"></MenuItem>
-                    <Separator></Separator>
-                    <MenuItem Header="_Delete"></MenuItem>
+                    <MenuItem x:Name="deleteBtn" Header="_Delete" Command="Delete" InputGestureText="Del" IsEnabled="False"></MenuItem>
                 </MenuItem>
             </Menu>
             <Border Height="30" BorderThickness="0 0 0 1" VerticalAlignment="Top"

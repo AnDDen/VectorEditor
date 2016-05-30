@@ -1,7 +1,9 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -104,11 +106,13 @@ namespace VectorEditor
                 if (selectedFigure != null)
                 {
                     SelectedFigureProperties.Visibility = Visibility.Visible;
+                    deleteBtn.IsEnabled = true;
                     UpdateSelectedFigureInfo();
                 }
                 else
                 {
                     SelectedFigureProperties.Visibility = Visibility.Collapsed;
+                    deleteBtn.IsEnabled = false;
                 }
             }
         }
@@ -407,18 +411,6 @@ namespace VectorEditor
             }
         }
 
-        private void newBtn_Click(object sender, RoutedEventArgs e)
-        {
-            NewImageWindow newImgWnd = new NewImageWindow();
-            newImgWnd.ShowDialog();
-            bool? res = newImgWnd.DialogResult;
-            if (res.HasValue && res.Value)
-            {
-                CloseImage();
-                NewImage(newImgWnd.ImageWidth, newImgWnd.ImageHeight);
-            }
-        }
-
         private void layerUpBtn_Click(object sender, RoutedEventArgs e)
         {
             image.LayerUp(selectedFigure);
@@ -464,15 +456,21 @@ namespace VectorEditor
             redoBtn.IsEnabled = imageHistory.CanRedo();
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        SaveFileDialog fileDlg = new SaveFileDialog()
+        {
+            AddExtension = true,
+            Filter = "Scalable Vector Graphics Files (*.svg)|*.svg|All Files (*.*)|*.*"
+        };
+
+        private void UndoCommandBinding(object sender, ExecutedRoutedEventArgs e)
         {
             if (imageHistory.CanUndo())
             {
                 LoadImageState(imageHistory.Undo());
-            }            
+            }
         }
 
-        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        private void RedoCommandBinding(object sender, ExecutedRoutedEventArgs e)
         {
             if (imageHistory.CanRedo())
             {
@@ -480,13 +478,79 @@ namespace VectorEditor
             }
         }
 
-        SaveFileDialog fileDlg = new SaveFileDialog()
+        private void NewCommandBinding(object sender, ExecutedRoutedEventArgs e)
+        {
+            NewImageWindow newImgWnd = new NewImageWindow();
+            newImgWnd.ShowDialog();
+            bool? res = newImgWnd.DialogResult;
+            if (res.HasValue && res.Value)
+            {
+                CloseImage();
+                NewImage(newImgWnd.ImageWidth, newImgWnd.ImageHeight);
+            }
+        }
+
+        private void CloseCommandBinding(object sender, ExecutedRoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void DeleteCommandBinding(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (selectedFigure != null)
+            {
+                image.RemoveFigure(selectedFigure);
+                SelectedFigure = null;
+            }
+        }
+
+        OpenFileDialog openFileDlg = new OpenFileDialog()
         {
             AddExtension = true,
-            Filter = "Scalable Vector Graphics Files (*.svg)|*.svg|All Files (*.*)|*.*"
+            Filter = "Vector Graphics Files (*.dat)|*.dat|All Files (*.*)|*.*"
         };
 
-        private void MenuItem_Click_2(object sender, RoutedEventArgs e)
+        private void OpenCommandBinding(object sender, ExecutedRoutedEventArgs e)
+        {
+            bool? res = openFileDlg.ShowDialog();
+            if (res.HasValue && res.Value)
+            {
+                //open here
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (FileStream fs = new FileStream(openFileDlg.FileName, FileMode.OpenOrCreate))
+                {
+                    Classes.Image tmp = (Classes.Image)formatter.Deserialize(fs);
+                    CloseImage();
+                    NewImage(tmp.Width, tmp.Height);
+                    foreach (IFigure f in tmp.Figures)
+                    {
+                        image.AddFigure(f);
+                    }
+                }
+            }
+        }
+
+        SaveFileDialog saveFileDlg = new SaveFileDialog()
+        {
+            AddExtension = true,
+            Filter = "Vector Graphics Files (*.dat)|*.dat|All Files (*.*)|*.*"
+        };
+
+        private void SaveCommandBinding(object sender, ExecutedRoutedEventArgs e)
+        {
+            bool? res = saveFileDlg.ShowDialog();
+            if (res.HasValue && res.Value)
+            {
+                // save here
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (FileStream fs = new FileStream(saveFileDlg.FileName, FileMode.OpenOrCreate))
+                {
+                    formatter.Serialize(fs, image);
+                }
+            }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
             bool? res = fileDlg.ShowDialog();
             if (res.HasValue && res.Value)

@@ -10,6 +10,7 @@ using VectorEditor.Classes.Figures;
 
 namespace VectorEditor.Classes
 {
+    [Serializable]
     public class Image
     {
         public IList<IFigure> Figures { get; set; }
@@ -36,9 +37,11 @@ namespace VectorEditor.Classes
             }
         }
 
+        [NonSerialized]
         private Canvas canvas;
         public Canvas Canvas { get { return canvas; } }
 
+        [NonSerialized]
         private Border canvasBorder;
         public Border CanvasBorder { get { return canvasBorder; } }
 

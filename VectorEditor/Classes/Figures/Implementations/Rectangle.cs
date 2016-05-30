@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -10,6 +11,7 @@ using System.Windows.Media;
 
 namespace VectorEditor.Classes.Figures
 {
+    [Serializable]
     public class Rectangle : IFigure
     {
         private Color fillColor, strokeColor;
@@ -103,6 +105,29 @@ namespace VectorEditor.Classes.Figures
                     }
                 }
                 isSelected = value;
+            }
+        }
+
+        public string FillColorString
+        {
+            get
+            {
+                return FillColor.ToString();
+            }
+            set
+            {
+                FillColor = (Color)ColorConverter.ConvertFromString(value);
+            }
+        }
+        public string StrokeColorString
+        {
+            get
+            {
+                return StrokeColor.ToString();
+            }
+            set
+            {
+                StrokeColor = (Color)ColorConverter.ConvertFromString(value);
             }
         }
 
@@ -347,6 +372,29 @@ namespace VectorEditor.Classes.Figures
                 X = x,
                 Y = y
             };
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("fill", fillColor.ToString(), typeof(string));
+            info.AddValue("stroke", strokeColor.ToString(), typeof(string));
+            info.AddValue("thickness", strokeThickness, typeof(double));
+
+            info.AddValue("x", x, typeof(double));
+            info.AddValue("y", y, typeof(double));
+            info.AddValue("width", width, typeof(double));
+            info.AddValue("height", height, typeof(double));
+        }
+
+        public Rectangle(SerializationInfo info, StreamingContext context) : this()
+        {
+            Width = (double)info.GetValue("width", typeof(double));
+            Height = (double)info.GetValue("height", typeof(double));
+            FillColor = (Color)ColorConverter.ConvertFromString((string)info.GetValue("fill", typeof(string)));
+            StrokeColor = (Color)ColorConverter.ConvertFromString((string)info.GetValue("stroke", typeof(string)));
+            StrokeThickness = (double)info.GetValue("thickness", typeof(double));
+            X = (double)info.GetValue("x", typeof(double));
+            Y = (double)info.GetValue("y", typeof(double));
         }
     }
 }
