@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -476,6 +477,28 @@ namespace VectorEditor
             if (imageHistory.CanRedo())
             {
                 LoadImageState(imageHistory.Redo());
+            }
+        }
+
+        SaveFileDialog fileDlg = new SaveFileDialog()
+        {
+            AddExtension = true,
+            Filter = "Scalable Vector Graphics Files(*.svg) | *.svg | All Files(*.*) | *.*"
+        };
+
+        private void MenuItem_Click_2(object sender, RoutedEventArgs e)
+        {
+            bool? res = fileDlg.ShowDialog();
+            if (res.HasValue && res.Value)
+            {
+                try
+                {
+                    image.SaveToSVG(fileDlg.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
     }

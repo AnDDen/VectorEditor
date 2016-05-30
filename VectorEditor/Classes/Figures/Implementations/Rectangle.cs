@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -323,12 +324,14 @@ namespace VectorEditor.Classes.Figures
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder
-                .Append(string.Format("<rect x = {0} y = {1} width = '{2}' height = '{3}' ", x, y, width, height))
-                .Append("style = '")
+                .Append(string.Format("<rect x='{0}' y='{1}' width='{2}' height='{3}' ", 
+                        x.ToString(new CultureInfo("en-US")), y.ToString(new CultureInfo("en-US")), 
+                        width.ToString(new CultureInfo("en-US")), height.ToString(new CultureInfo("en-US"))))
+                .Append("style='")
                 .Append(string.Format("fill: rgb({0}, {1}, {2}); ", fillColor.R, fillColor.G, fillColor.B))
-                .Append(string.Format("stroke - width:{0}; ", strokeThickness))
+                .Append(string.Format("stroke-width: {0}; ", strokeThickness.ToString(new CultureInfo("en-US"))))
                 .Append(string.Format("stroke: rgb({0}, {1}, {2})'", strokeColor.R, strokeColor.G, strokeColor.B))
-                .Append(" />");
+                .Append("/>");
             return stringBuilder.ToString();            
         }
 

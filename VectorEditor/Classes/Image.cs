@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -130,14 +131,30 @@ namespace VectorEditor.Classes
             canvas.Children.Remove(figure.Element);
         }
 
-        public string ToSVG()
+        public void SaveToSVG(string fileName)
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append(string.Format("<svg width='{0}' height='{1}'>", width, height));
-            foreach (IFigure f in Figures)
-                stringBuilder.Append(f.ToSVG());
-            stringBuilder.Append("</svg>");
-            return stringBuilder.ToString();
+            FileStream fs = null;
+            StreamWriter w = null;
+            try
+            {
+                fs = new FileStream(fileName, FileMode.Create);
+                w = new StreamWriter(fs);
+                w.WriteLine(string.Format("<svg width='{0}' height='{1}' xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">", width, height));
+                foreach (IFigure f in Figures)
+                    w.WriteLine(f.ToSVG());
+                w.WriteLine("</svg>");
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error exporting image to SVG");
+            }
+            finally
+            {
+                if (w != null)
+                    w.Close();
+                if (fs != null)
+                    fs.Close();
+            }
         }
     }
 }
