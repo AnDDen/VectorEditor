@@ -207,6 +207,13 @@ namespace VectorEditor
             SelectActiveOnToolbar(sender as Button);
         }
 
+        private void AddPathBtn_Click(object sender, RoutedEventArgs e)
+        {
+            currentMode = Mode.ADD_FIGURE;
+            currentFigureType = typeof(Classes.Figures.Rectangle);
+            SelectActiveOnToolbar(sender as Button);
+        }
+
         private void canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             isCanvasMouseDown = true;
